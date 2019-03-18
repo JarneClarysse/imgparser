@@ -87,7 +87,25 @@ fn show_image(image: &Image)
     
 }
 
-fn read_num(cursor: &mut Cursor<Vec<u8>>) -> Result<u64, Box<std::error::Error>> {
+fn read_pixel(cursor: &mut Cursor<Vec<u8>>) -> Result<Pixel, Box<std::error::Error>>{
+
+    let mut r = cursor.read_u8()?;
+    let mut g = cursor.read_u8()?;
+    let mut b = cursor.read_u8()?;
+
+    let mut pixel = Pixel {
+        R: r as u32,
+        G: g as u32,
+        B: b as u32
+    };
+
+    println!("R waarde {}",r as u32);
+
+    Ok(pixel)
+
+}
+
+fn read_num(cursor: &mut Cursor<Vec<u8>>) -> Result<u32, Box<std::error::Error>> {
     let mut v: Vec<u8> = vec![];
     let mut c:[u8; 1] = [0];
 
@@ -117,9 +135,9 @@ fn read_num(cursor: &mut Cursor<Vec<u8>>) -> Result<u64, Box<std::error::Error>>
 
 
     let num_str = std::str::from_utf8(&v)?;
-    let num = num_str.parse::<u64>()?;
+    let num = num_str.parse::<u32>()?;
 
- 
+
 
     Ok(num)
 
@@ -144,33 +162,31 @@ fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::erro
 
     let w = read_num(cursor)?;
     let h = read_num(cursor)?;
+    let max = read_num(cursor)?;
     println!("{}", h);
     println!("{}", w);
+    println!("{}",max);
 
-    /*cursor.read_line(&mut buf);
-    let mut_bytes= &buf;
-    //let sparkle_heart = str::from_utf8(&num_bytes).unwrap();
-*/
+    let mut allePix: Vec<Vec<Pixel>> = vec![];
+
+    for x in 0..h {
+        let mut hoogtePix: Vec<Pixel> = vec![];
+
+        for x in 0..w {
+            let pixel = read_pixel(cursor)?;
+            hoogtePix.push(pixel);
+        }
+        allePix.push(hoogtePix);
+    }
 
 	// TODO: Parse the image here
-    //println!("{}",mut_bytes);
-
-    /*let mut split_iter = mut_bytes.split_whitespace();
-    let test = "P6";
-    assert_eq!(split_iter.next(),Some(test) );
-    buf.clear();
+    image.width=w;
+    image.height=h;
+    image.pixels=allePix;
 
 
 
-    cursor.read_line(&mut buf);
-    println!("read byte {}", &buf);
-    cursor.read_line(&mut buf);
-    println!("read byte {}", &buf);
 
-    //println!("{}",split_iter.next());
-
-
-*/
     Ok(image)
 }
 
