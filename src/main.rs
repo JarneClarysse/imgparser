@@ -94,12 +94,11 @@ fn read_pixel(cursor: &mut Cursor<Vec<u8>>) -> Result<Pixel, Box<std::error::Err
     let mut b = cursor.read_u8()?;
 
     let mut pixel = Pixel {
-        R: r as u32,
-        G: g as u32,
-        B: b as u32
+        R: g as u32,
+        G: b as u32,
+        B: r as u32
     };
 
-    println!("R waarde {}",r as u32);
 
     Ok(pixel)
 
@@ -176,7 +175,7 @@ fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::erro
             let pixel = read_pixel(cursor)?;
             hoogtePix.push(pixel);
         }
-        allePix.push(hoogtePix);
+        allePix.insert(0,hoogtePix)
     }
 
 	// TODO: Parse the image here
