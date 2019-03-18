@@ -91,28 +91,37 @@ fn read_num(cursor: &mut Cursor<Vec<u8>>) -> Result<u64, Box<std::error::Error>>
     let mut v: Vec<u8> = vec![];
     let mut c:[u8; 1] = [0];
 
+
+
+
     //consume whitespace
     loop{
         cursor.read(&mut c)?;
         match &c {
            b" " | b"\t" | b"\n" => {},
             _ => { cursor.seek(std::io::SeekFrom::Current(-1)); break; }
-        }
-    }
+        };
+    };
+
 
     //read number
     loop{
         cursor.read(&mut c)?;
         match c[0] {
             b'0' ... b'9' => { v.push(c[0]);},
-            b' '| b'\t' | b'\n' => { cursor.seek(std::io::SeekFrom::Current(-1));}
+            b' '| b'\t' | b'\n' => { cursor.seek(std::io::SeekFrom::Current(-1)); break;}
             _ => {bail!("Parse error");}
-        }
-    }
+        };
+    };
+
+
 
     let num_str = std::str::from_utf8(&v)?;
     let num = num_str.parse::<u64>()?;
-    Ok(num);
+
+ 
+
+    Ok(num)
 
 }
 fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::error::Error>> {
@@ -121,9 +130,7 @@ fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::erro
         height: 0,
         pixels: vec![]
     };
-
-    let mut buf = String::new();
-    let mut buf2 = vec![];
+    //let mut buf2 = vec![];
 
     let mut header: [u8;2] = [0,2];
     cursor.read(&mut header);
@@ -133,8 +140,13 @@ fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::erro
         _ => {bail!("header mismatch"); }
     }
 
+    println!("test");
+
     let w = read_num(cursor)?;
     let h = read_num(cursor)?;
+    println!("{}", h);
+    println!("{}", w);
+
     /*cursor.read_line(&mut buf);
     let mut_bytes= &buf;
     //let sparkle_heart = str::from_utf8(&num_bytes).unwrap();
@@ -179,7 +191,7 @@ fn main()
     let display = path.display();
 
     let mut file = match File::open(&path)    {
-        Err(why) => panic!("Could not open file: {} (Reason: {})", 
+        Err(why) => panic!("Could not open file: {} (Reason: {})",
             display, why.description()),
         Ok(file) => file
     };
