@@ -94,9 +94,9 @@ fn read_pixel(cursor: &mut Cursor<Vec<u8>>) -> Result<Pixel, Box<std::error::Err
     let mut b = cursor.read_u8()?;
 
     let mut pixel = Pixel {
-        R: g as u32,
-        G: b as u32,
-        B: r as u32
+        R: r as u32,
+        G: g as u32,
+        B: b as u32
     };
 
 
@@ -136,7 +136,7 @@ fn read_num(cursor: &mut Cursor<Vec<u8>>) -> Result<u32, Box<std::error::Error>>
     let num_str = std::str::from_utf8(&v)?;
     let num = num_str.parse::<u32>()?;
 
-
+ 
 
     Ok(num)
 
@@ -168,6 +168,16 @@ fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::erro
 
     let mut allePix: Vec<Vec<Pixel>> = vec![];
 
+    let mut c:[u8; 1] = [0];
+
+    loop{
+        cursor.read(&mut c)?;
+        match &c {
+            b" " | b"\t" | b"\n" => {},
+            _ => { cursor.seek(std::io::SeekFrom::Current(-1)); break; }
+        };
+    };
+
     for x in 0..h {
         let mut hoogtePix: Vec<Pixel> = vec![];
 
@@ -183,6 +193,8 @@ fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::erro
     image.height=h;
     image.pixels=allePix;
 
+
+    //println!("{}",split_iter.next());
 
 
 
