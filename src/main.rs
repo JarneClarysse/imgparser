@@ -152,6 +152,8 @@ fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::erro
     let mut header: [u8;2] = [0,2];
     cursor.read(&mut header);
 
+
+
     match &header {
         b"P6" => {println!("Header match"); },
         _ => {bail!("header mismatch"); }
@@ -159,16 +161,82 @@ fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::erro
 
     println!("test");
 
+    let mut c:[u8; 1] = [0];
+    loop{
+        cursor.read(&mut c)?;
+        match &c {
+            b"#" => {loop{
+                cursor.read(&mut c)?;
+                match &c {
+                    b"\n" => {break;},
+                    _ => {}
+                };
+            };},
+            b" " | b"\t" | b"\n" => {},
+            _ => {cursor.seek(std::io::SeekFrom::Current(-1)); break; }
+        };
+    };
+
     let w = read_num(cursor)?;
+
+
+    loop{
+        cursor.read(&mut c)?;
+        match &c {
+            b"#" => {loop{
+                cursor.read(&mut c)?;
+                match &c {
+                    b"\n" => {break;},
+                    _ => {}
+                };
+            };},
+            b" " | b"\t" | b"\n" => {},
+            _ => {cursor.seek(std::io::SeekFrom::Current(-1)); break; }
+        };
+    };
+
+
     let h = read_num(cursor)?;
+
+    loop{
+        cursor.read(&mut c)?;
+        match &c {
+            b"#" => {loop{
+                cursor.read(&mut c)?;
+                match &c {
+                    b"\n" => {break;},
+                    _ => {}
+                };
+            };},
+            b" " | b"\t" | b"\n" => {},
+            _ => {cursor.seek(std::io::SeekFrom::Current(-1)); break; }
+        };
+    };
+
     let max = read_num(cursor)?;
+
+    loop{
+        cursor.read(&mut c)?;
+        match &c {
+            b"#" => {loop{
+                cursor.read(&mut c)?;
+                match &c {
+                    b"\n" => {break;},
+                    _ => {}
+                };
+            };},
+            b" " | b"\t" | b"\n" => {},
+            _ => {cursor.seek(std::io::SeekFrom::Current(-1)); break; }
+        };
+    };
+
     println!("{}", h);
     println!("{}", w);
     println!("{}",max);
 
     let mut allePix: Vec<Vec<Pixel>> = vec![];
 
-    let mut c:[u8; 1] = [0];
+
 
     loop{
         cursor.read(&mut c)?;
@@ -179,13 +247,13 @@ fn decode_ppm_image(cursor: &mut Cursor<Vec<u8>>) -> Result<Image, Box<std::erro
     };
 
     for x in 0..h {
-        let mut hoogtePix: Vec<Pixel> = vec![];
+        let mut hoogte_pix: Vec<Pixel> = vec![];
 
         for x in 0..w {
             let pixel = read_pixel(cursor)?;
-            hoogtePix.push(pixel);
+            hoogte_pix.push(pixel);
         }
-        allePix.insert(0,hoogtePix)
+        allePix.insert(0, hoogte_pix)
     }
 
 	// TODO: Parse the image here
